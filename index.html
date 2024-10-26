@@ -4,8 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soveside</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <header>
+        <h1>Soveside</h1>
+    </header>
+    <main>
+        <div class="info-div">
+            <p>Leggetiden blir arkivert 12:00</p>
+            <p id="date">Dato: 14.11.24</p>
+            <p id="registeredTime">Leggetid registrert: 22:00</p>
+        </div>
+
+        <div class="button-type-div">
+            <div class="select-div">
+                <select name="types" id="types">
+                    <option value="21">Står opp tidlig skole (21:00)</option>
+                    <option value="22">Står opp sent skole (22:00)</option>
+                    <option value="off">Det er fri! (∞:∞)</option>
+                </select>
+            </div>
     
+            <button id="register-button">REGISTRER LEGGETID</button>
+        </div>
+
+        <div class="nights-display-div">
+            <div class="nights-display">
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/nb.min.js"></script>
+    <script src="nightManager.js" type="module"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>

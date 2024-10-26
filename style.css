@@ -1,0 +1,88 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #ECDFCC;
+}
+
+/* BODY */
+body {
+    background-color: #3C3D37;
+}
+select {
+    cursor: pointer;
+    padding: 8px;
+    border: none;
+    outline: none;
+}
+
+/* OTHER DEFAULT */ 
+button {
+    background-color:#181C14;
+    outline: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+}
+
+/* HEADER */
+header {
+    padding: 16px 32px 8px 32px;
+    background-color: #181C14;
+    box-shadow: 0 0 8px black;
+}
+
+/* MAIN */
+main {
+    margin-top: 32px;
+    margin-inline: auto;
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.info-div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+#types {
+    background-color: #181C14;
+}
+.button-type-div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* DISPLAY NIGHTS */
+.nights-display {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.week {
+    display: flex;
+}
+.week-nr {
+    width: 80px;
+}
+.days {
+    display: flex;
+    gap: 24px;
+}
+.day {
+    width: 18px;
+    height: 15px;
+}
+.day.success {
+    background-color: rgb(39, 255, 39);
+}
+.day.fail {
+    background-color: rgb(218, 56, 56);
+}
+.day.unregistered {
+    background-color: rgb(239, 239, 49);
+}
