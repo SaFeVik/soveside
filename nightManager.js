@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, updateDoc, doc, query, where, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { collection, addDoc, getDocs, updateDoc, doc, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { db } from './firebase.js';
 
 async function registerNight(type) {
@@ -10,15 +10,20 @@ async function registerNight(type) {
     const querySnapshot = await getDocs(q);
     let regType
     if (type == "off") {
-        regType = "unregistered"
+        regType = "success"
     } else {
-        let hour = timeString.split(":")[0]
-        if (type < hour) {
-            regType = "fail"; // Leggetiden er før registrert leggetid
-        } else if (hour < 12 && type >= 12) {
-            regType = "fail"; // Hvis registrert leggetid er før middag og leggetiden er etter middag
+        let time = timeString.split(":")[0]+timeString.split(":")[1]
+        if (time < 1200) {
+            time += 2400
+        }
+        if (type < 1200) {
+            type += 2400
+        }
+
+        if (type < time) {
+            regType = "fail";
         } else {
-            regType = "success"; // Leggetiden er lik eller senere enn registrert leggetid
+            regType = "success";
         }
     }
 
@@ -32,7 +37,8 @@ async function registerNight(type) {
         await updateDoc(docRef, { regType: regType, time: timeString, nightDate: nightDate, type: type });
         console.log('Dokument oppdatert med ny tid:', nightDate, timeString);
     }
-
+/*     await addDoc(nightsRef, { regType: "fail", time: timeString, nightDate: "2024-9-20", type: type });
+    console.log('Nytt dokument lagt til:', timeString); */
 }
 
 async function findThisNight() {

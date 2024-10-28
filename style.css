@@ -45,9 +45,18 @@ main {
 
 .info-div {
     display: flex;
+    gap: 16px;
+}
+.thisNightInfo {
+    display: flex;
     flex-direction: column;
     gap: 8px;
 }
+.statistics-div {
+    padding: 8px;
+    background-color: #181C14;
+}
+
 #types {
     background-color: #181C14;
 }
@@ -60,7 +69,7 @@ main {
 /* DISPLAY NIGHTS */
 .nights-display {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 16px;
 }
 .week {

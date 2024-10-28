@@ -6,6 +6,9 @@ const typesEl = document.querySelector('#types')
 const registeredTimeEl = document.querySelector('#registeredTime')
 const dateEl = document.querySelector('#date')
 
+const monthStatEl = document.querySelector('#month-stat')
+const lifetimeStatEl = document.querySelector('#lifetime-stat')
+
 registerBtn.addEventListener('click', async () => {
     await registerNight(typesEl.value)
     await updatePage()
@@ -25,25 +28,32 @@ async function updatePage() {
     }
 
     const nightsList = await getNights();
-    console.log(nightsList);
 
     const currentYear = new Date().getFullYear();
-    const startWeek = 43;
+    const startWeek = 44;
     const weeksContainer = document.querySelector('.nights-display');
 
-    // Finn den seneste registrerte datoen
-    const latestNightData = nightsList.reduce((latest, night) => {
-        return moment(night.nightDate).isAfter(moment(latest.nightDate)) ? night : latest;
-    }, nightsList[0]);
-
-    // Beregn sluttdato for uken som inneholder den seneste registrerte datoen
-    const endOfLatestWeek = moment(latestNightData.nightDate).endOf('isoWeek').toDate();
+    const endOfThisWeek = moment().endOf('isoWeek').toDate();
 
     weeksContainer.innerHTML = "";
 
     let currentDate = moment().year(currentYear).week(startWeek).startOf('isoWeek').toDate();
 
-    while (currentDate <= endOfLatestWeek) {
+    let monthStat = 0
+    let monthNights = 0
+
+    let lifetimeStat = 0
+    let lifetimeNights = 0
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const thirtyDaysAgoDate = moment().subtract(30, 'days').startOf('day').toDate();
+
+    const today = new Date();
+
+    while (currentDate <= endOfThisWeek) {
+
         const weekDiv = document.createElement('div');
         weekDiv.classList.add('week');
         const weekNumber = moment(currentDate).isoWeek();
@@ -55,21 +65,33 @@ async function updatePage() {
         for (let day = 0; day < 7; day++) {
             const dayDiv = document.createElement('div');
             const dateKey = moment(currentDate).format('YYYY-MM-DD')
-            console.log(currentDate, dateKey)
             const nightData = nightsList.find(night => night.nightDate === dateKey);
-            console.log(nightData)
+
             if (nightData) {
+                if (currentDate.getTime() > thirtyDaysAgoDate.getTime() && currentDate.getTime() <= today.getTime()) {
+                    if (nightData) {
+                        monthNights += 1
+                        if (nightData.regType === "success") {
+                            monthStat += 1
+                        }
+                    } 
+
+                }
                 if (nightData.regType === "success") {
                     dayDiv.classList.add('day', 'success');
+                    lifetimeNights += 1
+                    lifetimeStat += 1
                 } else if (nightData.regType === "fail") {
                     dayDiv.classList.add('day', 'fail');
+                    lifetimeNights += 1
+                } else {
+                    dayDiv.classList.add('day')
                 }
             } else if (dateKey > nightDate) {
                 dayDiv.classList.add('day')
             } else {
                 dayDiv.classList.add('day', 'unregistered');
             }
-            console.log(dateKey > nightDate)
 
             daysDiv.appendChild(dayDiv);
             currentDate.setDate(currentDate.getDate() + 1); // Gå til neste dag
@@ -78,6 +100,8 @@ async function updatePage() {
         weekDiv.appendChild(daysDiv);
         weeksContainer.appendChild(weekDiv);
     }
+    lifetimeStatEl.innerHTML = `${Math.round((lifetimeStat/lifetimeNights)*1000)/10}%`
+    monthStatEl.innerHTML = `${Math.round((monthStat/monthNights)*1000)/10}%`
 }
 
 await updatePage()

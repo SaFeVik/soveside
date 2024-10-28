@@ -13,20 +13,28 @@
     </header>
     <main>
         <div class="info-div">
-            <p>Leggetiden blir arkivert 12:00</p>
-            <p id="date">Dato: 14.11.24</p>
-            <p id="registeredTime">Leggetid registrert: 22:00</p>
+            <div class="thisNightInfo">
+                <p>Neste natt begynner 12:00</p>
+                <p id="date">Dato: 14.11.24</p>
+                <p id="registeredTime">Leggetid registrert: 22:00</p>
+                <div class="select-div">
+                    <select name="types" id="types">
+                        <option value="2100">Står opp tidlig skole (21:00)</option>
+                        <option value="2200">Står opp sent skole (22:00)</option>
+                        <option value="off">Det er fri! (∞:∞)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="statistics-div">
+                <h4>Suksessrate</h4>
+                <p>All time:</p>
+                <p id="lifetime-stat"></p>
+                <p>Siste 30 dager:</p>
+                <p id="month-stat"></p>
+            </div>
         </div>
 
         <div class="button-type-div">
-            <div class="select-div">
-                <select name="types" id="types">
-                    <option value="21">Står opp tidlig skole (21:00)</option>
-                    <option value="22">Står opp sent skole (22:00)</option>
-                    <option value="off">Det er fri! (∞:∞)</option>
-                </select>
-            </div>
-    
             <button id="register-button">REGISTRER LEGGETID</button>
         </div>
 
