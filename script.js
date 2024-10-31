@@ -37,7 +37,7 @@ async function updatePage() {
 
     weeksContainer.innerHTML = "";
 
-    let currentDate = moment().year(currentYear).week(startWeek).startOf('isoWeek').toDate();
+    let indexDate = moment().year(currentYear).week(startWeek).startOf('isoWeek').toDate();
 
     let monthStat = 0
     let monthNights = 0
@@ -52,11 +52,10 @@ async function updatePage() {
 
     const today = new Date();
 
-    while (currentDate <= endOfThisWeek) {
-
+    while (indexDate <= endOfThisWeek) {
         const weekDiv = document.createElement('div');
         weekDiv.classList.add('week');
-        const weekNumber = moment(currentDate).isoWeek();
+        const weekNumber = moment(indexDate).isoWeek();
         weekDiv.innerHTML = `<p class="week-nr">${currentYear} - ${weekNumber}</p>`;
 
         const daysDiv = document.createElement('div');
@@ -64,44 +63,47 @@ async function updatePage() {
 
         for (let day = 0; day < 7; day++) {
             const dayDiv = document.createElement('div');
-            const dateKey = moment(currentDate).format('YYYY-MM-DD')
+            const dateKey = moment(indexDate).format('YYYY-MM-DD')
             const nightData = nightsList.find(night => night.nightDate === dateKey);
 
-            if (nightData) {
-                if (currentDate.getTime() > thirtyDaysAgoDate.getTime() && currentDate.getTime() <= today.getTime()) {
-                    if (nightData) {
-                        monthNights += 1
-                        if (nightData.regType === "success") {
-                            monthStat += 1
-                        }
-                    } 
+            if (indexDate.getTime() > thirtyDaysAgoDate.getTime() && indexDate.getTime() <= today.getTime() && moment(indexDate).isBefore(moment(), 'day')) {
+                monthNights += 1
+                if (nightData) {
+                    if (nightData.regType === "success") {
+                        monthStat += 1
+                    }
+                } 
 
-                }
+            }
+            if (moment(indexDate).isBefore(moment(), 'day')) {
+                lifetimeNights += 1
+            }
+
+            dayDiv.classList.add('day')
+            if (nightData) {
                 if (nightData.regType === "success") {
-                    dayDiv.classList.add('day', 'success');
-                    lifetimeNights += 1
-                    lifetimeStat += 1
+                    dayDiv.classList.add('success');
+                    if (moment(indexDate).isBefore(moment(), 'day')) {
+                        lifetimeStat += 1
+                    }
                 } else if (nightData.regType === "fail") {
-                    dayDiv.classList.add('day', 'fail');
-                    lifetimeNights += 1
-                } else {
-                    dayDiv.classList.add('day')
+                    dayDiv.classList.add('fail');
                 }
-            } else if (dateKey > nightDate) {
-                dayDiv.classList.add('day')
-            } else {
-                dayDiv.classList.add('day', 'unregistered');
+            } else if (dateKey <= nightDate) {
+                dayDiv.classList.add('unregistered');
             }
 
             daysDiv.appendChild(dayDiv);
-            currentDate.setDate(currentDate.getDate() + 1); // Gå til neste dag
+            indexDate.setDate(indexDate.getDate() + 1)
         }
+
 
         weekDiv.appendChild(daysDiv);
         weeksContainer.appendChild(weekDiv);
     }
     lifetimeStatEl.innerHTML = `${Math.round((lifetimeStat/lifetimeNights)*1000)/10}%`
     monthStatEl.innerHTML = `${Math.round((monthStat/monthNights)*1000)/10}%`
+    console.log(monthNights, monthStat, lifetimeNights, lifetimeStat)
 }
 
 await updatePage()
