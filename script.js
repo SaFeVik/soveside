@@ -81,6 +81,7 @@ async function updatePage() {
 
             dayDiv.classList.add('day')
             if (nightData) {
+                dayDiv.innerHTML = `<p>${nightData.time.split(":")[0]}</p><p>${nightData.time.split(":")[1]}</p>`
                 if (nightData.regType === "success") {
                     dayDiv.classList.add('success');
                     if (moment(indexDate).isBefore(moment(), 'day')) {

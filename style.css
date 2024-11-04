@@ -85,6 +85,14 @@ main {
 .day {
     width: 18px;
     height: 15px;
+    font-size: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.day p {
+    color: black;
 }
 .day.success {
     background-color: rgb(39, 255, 39);
