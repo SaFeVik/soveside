@@ -1,4 +1,4 @@
-import { registerNight, getThisNight, findThisNight, getNights } from './nightManager.js';
+import { registerThisNight, registerNight, getThisNight, findThisNight, getNights } from './nightManager.js';
 moment.locale('nb');
 
 const registerBtn = document.querySelector('#register-button')
@@ -10,7 +10,7 @@ const monthStatEl = document.querySelector('#month-stat')
 const lifetimeStatEl = document.querySelector('#lifetime-stat')
 
 registerBtn.addEventListener('click', async () => {
-    await registerNight(typesEl.value)
+    await registerThisNight(typesEl.value)
     await updatePage()
 })
 
@@ -65,6 +65,10 @@ async function updatePage() {
             const dayDiv = document.createElement('div');
             const dateKey = moment(indexDate).format('YYYY-MM-DD')
             const nightData = nightsList.find(night => night.nightDate === dateKey);
+            if (!nightData && (moment(dateKey).isoWeekday() === 5 || moment(dateKey).isoWeekday() === 6)) {
+                await registerNight("success", "", dateKey, "off")
+            }
+
 
             if (indexDate.getTime() > thirtyDaysAgoDate.getTime() && indexDate.getTime() <= today.getTime() && moment(indexDate).isBefore(moment(), 'day')) {
                 monthNights += 1
@@ -81,7 +85,10 @@ async function updatePage() {
 
             dayDiv.classList.add('day')
             if (nightData) {
-                dayDiv.innerHTML = `<p>${nightData.time.split(":")[0]}</p><p>${nightData.time.split(":")[1]}</p>`
+                console.log(nightData)
+                if (nightData.time != "") {
+                    dayDiv.innerHTML = `<p>${nightData.time.split(":")[0]}</p><p>${nightData.time.split(":")[1]}</p>`
+                }
                 if (nightData.regType === "success") {
                     dayDiv.classList.add('success');
                     if (moment(indexDate).isBefore(moment(), 'day')) {

@@ -1,7 +1,7 @@
 import { collection, addDoc, getDocs, updateDoc, doc, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { db } from './firebase.js';
 
-async function registerNight(type) {
+async function registerThisNight(type) {
     const now = new Date();
     const timeString = now.toTimeString().split(' ')[0].substring(0, 5); // Henter tid i HH:mm format
     const nightsRef = collection(db, 'nights');
@@ -41,10 +41,16 @@ async function registerNight(type) {
     console.log('Nytt dokument lagt til:', timeString); */
 }
 
+async function registerNight(regType, time, nightDate, type) {
+    const nightsRef = collection(db, 'nights');
+    await addDoc(nightsRef, { regType: regType, time: time, nightDate: nightDate, type:  type})
+}
+
 async function findThisNight() {
     const now = new Date();
     const dateString = now.toISOString().split('T')[0]; // Henter dato i YYYY-MM-DD format
-    const isAfterNoon = now.getHours() > 12
+    const isAfterNoon = now.getHours() > 11
+    console.log(now.getHours())
     const nightDate = isAfterNoon 
         ? dateString 
         : new Date(new Date(dateString).setDate(new Date(dateString).getDate() - 1)).toISOString().split('T')[0];
@@ -82,4 +88,4 @@ async function getNights() {
 
 
 
-export { registerNight, findThisNight, getThisNight, getNights }
+export { registerThisNight, registerNight, findThisNight, getThisNight, getNights }
