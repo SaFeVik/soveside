@@ -84,7 +84,8 @@ async function updatePage() {
             }
 
             dayDiv.classList.add('day')
-            if (nightData) {
+            if (nightData && dateKey < nightDate) {
+                console.log(dateKey, nightDate)
                 console.log(nightData)
                 if (nightData.time != "") {
                     dayDiv.innerHTML = `<p>${nightData.time.split(":")[0]}</p><p>${nightData.time.split(":")[1]}</p>`
