@@ -20,8 +20,7 @@ async function updatePage() {
     dateEl.innerHTML = `Natt: ${date}`;
 
     const night = await getThisNight();
-
-    if (!night) {
+    if (!night || night.time == "") {
         registeredTimeEl.innerHTML = "Ingen leggetid registrert i dag";
     } else {
         registeredTimeEl.innerHTML = `Leggetid registrert ${night.time}`;
