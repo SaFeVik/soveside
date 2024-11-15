@@ -50,7 +50,6 @@ async function findThisNight() {
     const now = new Date();
     const dateString = now.toISOString().split('T')[0]; // Henter dato i YYYY-MM-DD format
     const isAfterNoon = now.getHours() > 11
-    console.log(now.getHours())
     const nightDate = isAfterNoon 
         ? dateString 
         : new Date(new Date(dateString).setDate(new Date(dateString).getDate() - 1)).toISOString().split('T')[0];

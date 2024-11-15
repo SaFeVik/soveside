@@ -47,6 +47,7 @@ main {
 
 .info-div {
     display: flex;
+    justify-content: space-between;
     gap: 16px;
 }
 .thisNightInfo {
@@ -61,6 +62,7 @@ main {
 
 #types {
     background-color: #181C14;
+    width: 100%;
 }
 .button-type-div {
     display: flex;

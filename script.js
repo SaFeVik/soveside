@@ -70,7 +70,7 @@ async function updatePage() {
             }
 
 
-            if (indexDate.getTime() > thirtyDaysAgoDate.getTime() && indexDate.getTime() <= today.getTime() && moment(indexDate).isBefore(moment(), 'day')) {
+            if (indexDate.getTime() > thirtyDaysAgoDate.getTime() && indexDate.getTime() <= today.getTime() && dateKey < nightDate) {
                 monthNights += 1
                 if (nightData) {
                     if (nightData.regType === "success") {
@@ -79,14 +79,12 @@ async function updatePage() {
                 } 
 
             }
-            if (moment(indexDate).isBefore(moment(), 'day')) {
+            if (dateKey < nightDate) {
                 lifetimeNights += 1
             }
 
             dayDiv.classList.add('day')
             if (nightData && dateKey < nightDate) {
-                console.log(dateKey, nightDate)
-                console.log(nightData)
                 if (nightData.time != "") {
                     dayDiv.innerHTML = `<p>${nightData.time.split(":")[0]}</p><p>${nightData.time.split(":")[1]}</p>`
                 }
@@ -110,9 +108,40 @@ async function updatePage() {
         weekDiv.appendChild(daysDiv);
         weeksContainer.appendChild(weekDiv);
     }
-    lifetimeStatEl.innerHTML = `${Math.round((lifetimeStat/lifetimeNights)*1000)/10}%`
-    monthStatEl.innerHTML = `${Math.round((monthStat/monthNights)*1000)/10}%`
-    console.log(monthNights, monthStat, lifetimeNights, lifetimeStat)
+    let lifetimeStatValue = Math.round((lifetimeStat/lifetimeNights)*1000)/10
+    let monthStatValue = Math.round((lifetimeStat/lifetimeNights)*1000)/10
+    lifetimeStatEl.innerHTML = `${lifetimeStatValue}%`
+    monthStatEl.innerHTML = `${monthStatValue}%`
+
+    if (lifetimeStatValue == 100) {
+        lifetimeStatEl.style.textShadow = "0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6)"
+    }
+    if (monthStatValue == 100) {
+        monthStatEl.style.textShadow = "0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6)"
+    }
+
+    lifetimeStatEl.style.color = colorPicker(lifetimeStatValue)
+    monthStatEl.style.color = colorPicker(monthStatValue)
+
+}
+
+function colorPicker(percentage) {
+    if (percentage < 50) {
+        return 'rgb(255, 13, 13)'
+    } else if (percentage < 60) {
+        return 'rgb(255, 78, 17)'
+    } else if (percentage < 70) {
+        return 'rgb(255, 142, 21)'
+    } else if (percentage < 80) {
+        return 'rgb(250, 183, 51)'
+    } else if (percentage < 90) {
+        return 'rgb(172, 179, 52)'
+    } else if (percentage < 100) {
+        return 'rgb(105, 179, 76)'
+    }
+    else {
+        return 'rgb(255, 215, 0)'
+    }
 }
 
 await updatePage()
