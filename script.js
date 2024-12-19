@@ -69,7 +69,7 @@ async function updatePage() {
             }
 
 
-            if (indexDate.getTime() > thirtyDaysAgoDate.getTime() && indexDate.getTime() <= today.getTime() && dateKey < nightDate) {
+            if (indexDate.getTime() >= thirtyDaysAgoDate.getTime() && indexDate.getTime() <= today.getTime() && dateKey < nightDate) {
                 monthNights += 1
                 if (nightData) {
                     if (nightData.regType === "success") {
@@ -108,9 +108,10 @@ async function updatePage() {
         weeksContainer.appendChild(weekDiv);
     }
     let lifetimeStatValue = Math.round((lifetimeStat/lifetimeNights)*1000)/10
-    let monthStatValue = Math.round((lifetimeStat/lifetimeNights)*1000)/10
+    let monthStatValue = Math.round((monthStat/monthNights)*1000)/10
     lifetimeStatEl.innerHTML = `${lifetimeStatValue}%`
     monthStatEl.innerHTML = `${monthStatValue}%`
+    console.log(monthNights, monthStat)
 
     if (lifetimeStatValue == 100) {
         lifetimeStatEl.style.textShadow = "0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6)"
