@@ -28,15 +28,20 @@ async function updatePage() {
 
     const nightsList = await getNights();
 
+    // Finn den første registrerte søvndatoen
+    const firstNight = nightsList.reduce((earliest, night) => {
+        return moment(night.nightDate).isBefore(moment(earliest.nightDate)) ? night : earliest;
+    }, nightsList[0]);
+
+    // Sett indexDate til den første registrerte søvndatoen
+    let indexDate = moment(firstNight.nightDate).startOf('isoWeek').toDate();
+
     const currentYear = new Date().getFullYear();
-    const startWeek = 44;
     const weeksContainer = document.querySelector('.nights-display');
 
     const endOfThisWeek = moment().endOf('isoWeek').toDate();
 
     weeksContainer.innerHTML = "";
-
-    let indexDate = moment().year(currentYear).week(startWeek).startOf('isoWeek').toDate();
 
     let monthStat = 0
     let monthNights = 0
@@ -55,7 +60,7 @@ async function updatePage() {
         const weekDiv = document.createElement('div');
         weekDiv.classList.add('week');
         const weekNumber = moment(indexDate).isoWeek();
-        weekDiv.innerHTML = `<p class="week-nr">${currentYear} - ${weekNumber}</p>`;
+        weekDiv.innerHTML = `<p class="week-nr">${moment(indexDate).format('YYYY')} - ${weekNumber}</p>`;
 
         const daysDiv = document.createElement('div');
         daysDiv.classList.add('days');
