@@ -36,7 +36,6 @@ async function updatePage() {
     // Sett indexDate til den første registrerte søvndatoen
     let indexDate = moment(firstNight.nightDate).startOf('isoWeek').toDate();
 
-    const currentYear = new Date().getFullYear();
     const weeksContainer = document.querySelector('.nights-display');
 
     const endOfThisWeek = moment().endOf('isoWeek').toDate();

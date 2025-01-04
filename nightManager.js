@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, updateDoc, doc, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { db } from './firebase.js';
 
 async function registerThisNight(type) {
@@ -43,7 +43,19 @@ async function registerThisNight(type) {
 
 async function registerNight(regType, time, nightDate, type) {
     const nightsRef = collection(db, 'nights');
-    await addDoc(nightsRef, { regType: regType, time: time, nightDate: nightDate, type:  type})
+    const q = query(nightsRef, where('nightDate', '==', nightDate));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        // Legg til nytt dokument
+        await addDoc(nightsRef, { regType: regType, time: time, nightDate: nightDate, type: type });
+        console.log('Nytt dokument lagt til:', nightDate, time);
+    } else {
+        // Oppdater eksisterende dokument
+        const docRef = doc(db, 'nights', querySnapshot.docs[0].id);
+        await updateDoc(docRef, { regType: regType, time: time, nightDate: nightDate, type: type });
+        console.log('Dokument oppdatert med ny tid:', nightDate, time);
+    }
 }
 
 async function findThisNight() {
