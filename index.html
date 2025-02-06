@@ -6,6 +6,8 @@
     <title>Soveside</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 <body>
     <header>
@@ -13,30 +15,28 @@
     </header>
     <main>
         <div class="info-div">
-            <div class="thisNightInfo">
-                <p>Neste natt begynner 12:00</p>
-                <p id="date">N/A</p>
-                <p id="registeredTime">N/A </p>
-                <div class="select-div">
-                    <select name="types" id="types">
-                        <option value="2115">Tidlig skole (21:15)</option>
-                        <option value="2200">Sen skole (22:00)</option>
-                        <option value="2215">Tidlig skole🩸 (22:15)</option>
-                        <option value="2300">Sen skole🩸 (23:00)</option>
-                        <option value="off">Det er fri! (∞:∞)</option>
-                    </select>
+                <div class="info-text">
+                    <p>Neste natt begynner 12:00</p>
+                    <p id="date">N/A</p>
+                    <p id="registeredTime">N/A </p>
                 </div>
-            </div>
             <div class="statistics-div">
                 <h4>Suksessrate</h4>
-                <p>All time:</p>
-                <p id="lifetime-stat">N/A%</p>
-                <p>Siste 30 dager:</p>
-                <p id="month-stat">N/A%</p>
+                <p><i class="fa-solid fa-infinity"></i> : <span id="lifetime-stat">N/A%</span></p>
+                <p>30 : <span id="month-stat">N/A%</span></p>
             </div>
         </div>
 
-        <div class="button-type-div">
+        <div class="register-div">
+            <div class="select-div">
+                <select name="types" id="types">
+                    <option value="2115">Tidlig skole (21:15)</option>
+                    <option value="2200">Sen skole (22:00)</option>
+                    <option value="2215">Tidlig skole🩸 (22:15)</option>
+                    <option value="2300">Sen skole🩸 (23:00)</option>
+                    <option value="off">Det er fri!</option>
+                </select>
+            </div>
             <button id="register-button">REGISTRER LEGGETID</button>
         </div>
 

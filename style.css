@@ -3,12 +3,17 @@
     padding: 0;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
-    color: #ECDFCC;
+    color: rgb(255, 250, 239);
+}
+
+:root {
+    --primary-color: rgb(26, 28, 30);
+    --secondary-color: rgb(40, 40, 54);
 }
 
 /* BODY */
 body {
-    background-color: #3C3D37;
+    background-color: var(--primary-color);
 }
 select {
     cursor: pointer;
@@ -21,9 +26,10 @@ select {
 
 /* OTHER DEFAULT */ 
 button {
-    background-color:#181C14;
+    background-color: var(--secondary-color);
     outline: none;
     border: none;
+    border-radius: 8px;
     padding: 8px;
     cursor: pointer;
 }
@@ -31,43 +37,67 @@ button {
 /* HEADER */
 header {
     padding: 16px 32px 8px 32px;
-    background-color: #181C14;
+    background-color: var(--secondary-color);
     box-shadow: 0 0 8px black;
+    text-align: center;
 }
 
 /* MAIN */
 main {
     margin-top: 32px;
     margin-inline: auto;
-    width: 350px;
+    width: 360px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
 }
 
 .info-div {
     display: flex;
-    justify-content: space-between;
-    gap: 16px;
-}
-.thisNightInfo {
-    display: flex;
-    flex-direction: column;
     gap: 8px;
-}
-.statistics-div {
-    padding: 8px;
-    background-color: #181C14;
 }
 
-#types {
-    background-color: #181C14;
-    width: 100%;
-}
-.button-type-div {
+.info-text {
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+.info-text p {
+    padding: 8px;
+    border-radius: 8px;
+    background-color: var(--secondary-color);
+}
+
+.statistics-div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    font-size: 16px;
+}
+.statistics-div > * {
+    border-radius: 8px;
+    background-color: var(--secondary-color);
+    padding: 8px;
+}
+
+.register-div {
+    display: flex;
+    gap: 8px;
+}
+#register-button {
+    flex: 1;
+    background-color: rgb(70, 70, 114);
+    border: 0.5px solid rgb(199, 199, 255);
+    padding: 7px;
+}
+#types {
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    font-size: 16px;
+    flex: 1;
 }
 
 /* DISPLAY NIGHTS */
@@ -75,22 +105,25 @@ main {
     display: flex;
     flex-direction: column-reverse;
     gap: 16px;
+    margin-top: 16px;
 }
 .week {
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 .week-nr {
     width: 80px;
 }
 .days {
     display: flex;
-    gap: 24px;
+    gap: 16px;
 }
 .day {
-    width: 18px;
+    width: 24px;
     height: 15px;
     font-size: 6px;
+    border-radius: 2px;
     display: flex;
     flex-direction: column;
     align-items: center;

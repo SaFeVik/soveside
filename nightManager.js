@@ -9,6 +9,8 @@ async function registerThisNight(type) {
     const q = query(nightsRef, where('nightDate', '==', nightDate))
     const querySnapshot = await getDocs(q);
     let regType
+    console.log("type", type)
+    console.log("hei")
     if (type == "off") {
         regType = "success"
     } else {
