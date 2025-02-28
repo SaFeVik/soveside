@@ -98,7 +98,33 @@ async function getNights() {
     return nightsList
 }
 
+// For å fikse opp når Marita glemmer å registrere
+async function registerMultipleNights(datesList) {
+    const nightsRef = collection(db, 'nights');
+    
+    for (const nightDate of datesList) {
+        // Check if document already exists for this date
+        const q = query(nightsRef, where('nightDate', '==', nightDate));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            // Add new document only if it doesn't exist
+            await addDoc(nightsRef, {
+                regType: "success",
+                time: "",
+                nightDate: nightDate,
+                type: "off"
+            });
+            console.log('Nytt dokument lagt til for:', nightDate);
+        } else {
+            console.log('Dokument eksisterer allerede for:', nightDate);
+        }
+    }
+}
+const dates = [
+    "2025-02-24",
+];
 
+/* await registerMultipleNights(dates); */
 
-
-export { registerThisNight, registerNight, findThisNight, getThisNight, getNights }
+export { registerThisNight, registerNight, findThisNight, getThisNight, getNights, registerMultipleNights }

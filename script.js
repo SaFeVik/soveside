@@ -28,6 +28,9 @@ async function updatePage() {
 
     const nightsList = await getNights();
 
+    // Sorter nettene kronologisk (eldste først)
+    nightsList.sort((a, b) => moment(a.nightDate).diff(moment(b.nightDate)));
+
     // Finn den første registrerte søvndatoen
     const firstNight = nightsList.reduce((earliest, night) => {
         return moment(night.nightDate).isBefore(moment(earliest.nightDate)) ? night : earliest;
@@ -54,6 +57,26 @@ async function updatePage() {
     const thirtyDaysAgoDate = moment().subtract(30, 'days').startOf('day').toDate();
 
     const today = new Date();
+
+    // Find streak days
+    let streakDays = new Set();
+    let currentStreak = 0;
+
+    // Calculate streaks by going forwards through the nights
+    for (let i = 0; i < nightsList.length; i++) {
+        const night = nightsList[i];
+        if (night.nightDate >= nightDate) continue; // Skip today and future dates
+
+        if (night.regType === "success") {
+            currentStreak++;
+            if (currentStreak >= 30) {
+                // Add only this day to streakDays when reaching exactly 30
+                streakDays.add(night.nightDate);
+            }
+        } else {
+            currentStreak = 0;
+        }
+    }
 
     while (indexDate <= endOfThisWeek) {
         const weekDiv = document.createElement('div');
@@ -88,13 +111,18 @@ async function updatePage() {
 
             dayDiv.classList.add('day')
             if (nightData && dateKey < nightDate) {
-                if (nightData.time != "") {
-                    dayDiv.innerHTML = `<p>${nightData.time.split(":")[0]}</p><p>${nightData.time.split(":")[1]}</p>`
-                }
+                let timeDisplay = nightData.time ? `${nightData.time.split(":")[0]}:${nightData.time.split(":")[1]}<br>` : '';
+                const dateDisplay = moment(dateKey).format('D. MMM').split('.')
+                dayDiv.innerHTML = `<p>${dateDisplay[0]}. ${dateDisplay[1]}</p><p>${timeDisplay}</p>`;
+                
                 if (nightData.regType === "success") {
                     dayDiv.classList.add('success');
                     if (moment(indexDate).isBefore(moment(), 'day')) {
                         lifetimeStat += 1
+                    }
+                    // Add streak class if this day is part of a streak
+                    if (streakDays.has(dateKey)) {
+                        dayDiv.classList.add('streak');
                     }
                 } else if (nightData.regType === "fail") {
                     dayDiv.classList.add('fail');
@@ -115,7 +143,6 @@ async function updatePage() {
     let monthStatValue = Math.round((monthStat/monthNights)*1000)/10
     lifetimeStatEl.innerHTML = `${lifetimeStatValue}%`
     monthStatEl.innerHTML = `${monthStatValue}%`
-    console.log(monthNights, monthStat)
 
     if (lifetimeStatValue == 100) {
         lifetimeStatEl.style.textShadow = "0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6)"

@@ -142,3 +142,18 @@ main {
 .day.unregistered {
     background-color: rgb(239, 239, 49);
 }
+.day.streak {
+    border: 1px solid rgb(255, 215, 0);
+    box-shadow: 0 0 8px rgb(255, 215, 0);
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px rgb(255, 215, 0);
+    }
+    to {
+        box-shadow: 0 0 5px rgb(255, 215, 0),
+                    0 0 5px rgb(255, 215, 0);
+    }
+}
