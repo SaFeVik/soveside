@@ -117,10 +117,10 @@ main {
 }
 .days {
     display: flex;
-    gap: 16px;
+    gap: 14px;
 }
 .day {
-    width: 24px;
+    width: 26px;
     height: 15px;
     font-size: 6px;
     border-radius: 2px;
