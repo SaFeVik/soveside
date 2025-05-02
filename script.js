@@ -10,8 +10,13 @@ const monthStatEl = document.querySelector('#month-stat')
 const lifetimeStatEl = document.querySelector('#lifetime-stat')
 
 registerBtn.addEventListener('click', async () => {
-    await registerThisNight(typesEl.value)
-    await updatePage()
+    const result = await registerThisNight(typesEl.value)
+    if (result) {
+        await updatePage()
+    } else {
+        // Show error to user
+        alert("Det oppstod et problem ved registrering. Vennligst prøv igjen.")
+    }
 })
 
 async function updatePage() {
@@ -92,7 +97,11 @@ async function updatePage() {
             const dateKey = moment(indexDate).format('YYYY-MM-DD')
             const nightData = nightsList.find(night => night.nightDate === dateKey);
             if (!nightData && (moment(dateKey).isoWeekday() === 5 || moment(dateKey).isoWeekday() === 6)) {
-                await registerNight("success", "", dateKey, "off")
+                try {
+                    await registerNight("success", "", dateKey, "off")
+                } catch (error) {
+                    console.error("Failed to register weekend night:", error);
+                }
             }
 
 
