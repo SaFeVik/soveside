@@ -139,4 +139,66 @@ const dates = [
 
 /* await registerMultipleNights(dates); */
 
-export { registerThisNight, registerNight, findThisNight, getThisNight, getNights, registerMultipleNights }
+async function updateNight(nightDate, regType, time, type) {
+    try {
+        const nightsRef = collection(db, 'nights');
+        const q = query(nightsRef, where('nightDate', '==', nightDate));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            // Legg til nytt dokument hvis det ikke finnes
+            await addDoc(nightsRef, { regType, time, nightDate, type });
+            console.log('Nytt dokument lagt til ved oppdatering:', nightDate);
+        } else {
+            // Oppdater eksisterende dokument
+            const docRef = doc(db, 'nights', querySnapshot.docs[0].id);
+            await updateDoc(docRef, { regType, time, nightDate, type });
+            console.log('Dokument oppdatert med ny data:', nightDate);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error updating night:", error);
+        return false;
+    }
+}
+
+async function getNightByDate(nightDate) {
+    try {
+        const nightsRef = collection(db, 'nights');
+        const q = query(nightsRef, where('nightDate', '==', nightDate));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            return null;
+        } else {
+            return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+        }
+    } catch (error) {
+        console.error("Error getting night by date:", error);
+        return null;
+    }
+}
+
+async function deleteNight(nightDate) {
+    try {
+        const nightsRef = collection(db, 'nights');
+        const q = query(nightsRef, where('nightDate', '==', nightDate));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            // Slett eksisterende dokument
+            const docRef = doc(db, 'nights', querySnapshot.docs[0].id);
+            await deleteDoc(docRef);
+            console.log('Dokument slettet:', nightDate);
+            return true;
+        } else {
+            console.log('Ingen dokument å slette for:', nightDate);
+            return true; // Returnerer true selv om det ikke var noe å slette
+        }
+    } catch (error) {
+        console.error("Error deleting night:", error);
+        return false;
+    }
+}
+
+export { registerThisNight, registerNight, findThisNight, getThisNight, getNights, registerMultipleNights, updateNight, getNightByDate, deleteNight }

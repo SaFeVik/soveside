@@ -1,4 +1,4 @@
-import { registerThisNight, registerNight, getThisNight, findThisNight, getNights } from './nightManager.js';
+import { registerThisNight, registerNight, getThisNight, findThisNight, getNights, updateNight, getNightByDate, deleteNight } from './nightManager.js';
 moment.locale('nb');
 
 const registerBtn = document.querySelector('#register-button')
@@ -9,6 +9,10 @@ const dateEl = document.querySelector('#date')
 const monthStatEl = document.querySelector('#month-stat')
 const lifetimeStatEl = document.querySelector('#lifetime-stat')
 
+// Globale variabler for redigering
+let editOverlay = null;
+let currentEditDate = null;
+
 registerBtn.addEventListener('click', async () => {
     const result = await registerThisNight(typesEl.value)
     if (result) {
@@ -18,6 +22,162 @@ registerBtn.addEventListener('click', async () => {
         alert("Det oppstod et problem ved registrering. Vennligst prøv igjen.")
     }
 })
+
+// Funksjon for å åpne redigeringspanelet
+async function openEditPanel(nightDate) {
+    // Forhindre flere redigeringspaneler
+    if (editOverlay) {
+        return;
+    }
+    
+    currentEditDate = nightDate;
+    
+    // Hent nattdata hvis den eksisterer
+    const nightData = await getNightByDate(nightDate);
+    
+    // Sjekk om det er helg (fredag = 5, lørdag = 6)
+    const isWeekend = moment(nightDate).isoWeekday() === 5 || moment(nightDate).isoWeekday() === 6;
+    
+    // Opprett overlay
+    editOverlay = document.createElement('div');
+    editOverlay.className = 'edit-overlay';
+    
+    // Formatert dato for visning
+    const formattedDate = moment(nightDate).format('DD.MM.YYYY');
+    
+    // Panel-innhold
+    editOverlay.innerHTML = `
+        <div class="edit-panel">
+            <h3>Rediger natt: ${formattedDate}</h3>
+            ${!isWeekend ? '<button type="button" class="reset-btn">Nullstill</button>' : ''}
+            <form class="edit-form">
+                <div class="form-group">
+                    <label for="edit-type">Type</label>
+                    <select id="edit-type">
+                        <option value="2115">Tidlig skole (21:15)</option>
+                        <option value="2200">Sen skole (22:00)</option>
+                        <option value="2215">Tidlig skole🩸 (22:15)</option>
+                        <option value="2300">Sen skole🩸 (23:00)</option>
+                        <option value="off">Det er fri!</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-time">Leggetid (HH:MM)</label>
+                    <input type="text" id="edit-time" placeholder="f.eks. 22:30" value="${nightData && nightData.time ? nightData.time : ''}">
+                    <small style="color: #aaa; font-size: 0.8rem; margin-top: 3px;">La være tom for å fjerne registrert tid</small>
+                </div>
+                <div class="form-group">
+                    <label for="edit-status">Status</label>
+                    <select id="edit-status">
+                        <option value="success">Suksess</option>
+                        <option value="fail">Feil</option>
+                    </select>
+                </div>
+                <div class="edit-actions">
+                    <button type="button" class="cancel-btn">Avbryt</button>
+                    <button type="button" class="save-btn">Lagre</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    // Legg til overlay på siden
+    document.body.appendChild(editOverlay);
+    
+    // Sett riktige verdier i feltene hvis det er eksisterende data
+    if (nightData) {
+        document.getElementById('edit-type').value = nightData.type || 'off';
+        document.getElementById('edit-status').value = nightData.regType || 'success';
+    }
+    
+    // Legg til event listeners for knappene
+    editOverlay.querySelector('.cancel-btn').addEventListener('click', closeEditPanel);
+    editOverlay.querySelector('.save-btn').addEventListener('click', saveNightData);
+    
+    // Legg til event listener for nullstill-knappen hvis den eksisterer (ikke helg)
+    if (!isWeekend) {
+        const resetBtn = editOverlay.querySelector('.reset-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetNightData);
+        }
+    }
+}
+
+// Funksjon for å lukke redigeringspanelet
+function closeEditPanel() {
+    if (editOverlay) {
+        document.body.removeChild(editOverlay);
+        editOverlay = null;
+        currentEditDate = null;
+    }
+}
+
+// Funksjon for å lagre redigert data
+async function saveNightData() {
+    if (!currentEditDate) return;
+    
+    const type = document.getElementById('edit-type').value;
+    const time = document.getElementById('edit-time').value;
+    const regType = document.getElementById('edit-status').value;
+    
+    // Validering av tid
+    if (time && !/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) {
+        alert("Ugyldig tidsformat. Bruk HH:MM (f.eks. 22:30)");
+        return;
+    }
+    
+    // Lagre data
+    const result = await updateNight(currentEditDate, regType, time, type);
+    
+    if (result) {
+        closeEditPanel();
+        await updatePage(); // Oppdater siden med ny data
+    } else {
+        alert("Det oppstod et problem ved lagring. Vennligst prøv igjen.");
+    }
+}
+
+// Funksjon for å nullstille data for en natt
+async function resetNightData() {
+    if (!currentEditDate) return;
+    
+    // Sjekk om det er helg (fredag = 5, lørdag = 6)
+    const isWeekend = moment(currentEditDate).isoWeekday() === 5 || moment(currentEditDate).isoWeekday() === 6;
+    
+    // Ikke tillat nullstilling av helger
+    if (isWeekend) {
+        alert("Helgedager kan ikke nullstilles. De er alltid markert som fri.");
+        return;
+    }
+    
+    // Bekreftelse fra bruker
+    if (confirm("Er du sikker på at du vil nullstille denne datoen? Dette vil fjerne all registrert data.")) {
+        const result = await deleteNight(currentEditDate);
+        
+        if (result) {
+            closeEditPanel();
+            await updatePage(); // Oppdater siden med ny data
+        } else {
+            alert("Det oppstod et problem ved nullstilling. Vennligst prøv igjen.");
+        }
+    }
+}
+
+// Legg til funksjon for å legge til klikk-lyttere på dager
+function addDayClickListeners() {
+    const days = document.querySelectorAll('.day');
+    days.forEach(day => {
+        // Fjern eventuelle eksisterende lyttere først
+        const newDay = day.cloneNode(true);
+        day.parentNode.replaceChild(newDay, day);
+        
+        // Legg til ny lytter med data-attributt
+        const dateKey = newDay.getAttribute('data-date');
+        if (dateKey) {
+            newDay.addEventListener('click', () => openEditPanel(dateKey));
+        }
+    });
+}
 
 async function updatePage() {
     const nightDate = await findThisNight();
@@ -118,7 +278,10 @@ async function updatePage() {
                 lifetimeNights += 1
             }
 
-            dayDiv.classList.add('day')
+            dayDiv.classList.add('day');
+            // Legg til data-attributt for dato
+            dayDiv.setAttribute('data-date', dateKey);
+            
             if (nightData && dateKey < nightDate) {
                 let timeDisplay = nightData.time ? `${nightData.time.split(":")[0]}:${nightData.time.split(":")[1]}<br>` : '';
                 const dateDisplay = moment(dateKey).format('D. MMM').split('.')
@@ -162,7 +325,9 @@ async function updatePage() {
 
     lifetimeStatEl.style.color = colorPicker(lifetimeStatValue)
     monthStatEl.style.color = colorPicker(monthStatValue)
-
+    
+    // Legg til klikk-lyttere etter at alle dagene er opprettet
+    addDayClickListeners();
 }
 
 function colorPicker(percentage) {
