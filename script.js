@@ -49,7 +49,7 @@ async function openEditPanel(nightDate) {
     editOverlay.innerHTML = `
         <div class="edit-panel">
             <h3>Rediger natt: ${formattedDate}</h3>
-            ${!isWeekend ? '<button type="button" class="reset-btn">Nullstill</button>' : ''}
+            ${!isWeekend ? '<button type="button" class="reset-btn" title="Nullstill denne datoen"><i class="fa-solid fa-trash-can"></i></button>' : ''}
             <form class="edit-form">
                 <div class="form-group">
                     <label for="edit-type">Type</label>
@@ -141,6 +141,12 @@ async function saveNightData() {
 async function resetNightData() {
     if (!currentEditDate) return;
     
+    // Fjern eventuelle eksisterende bekreftelsesdialoger først
+    const existingConfirm = document.querySelector('.confirm-overlay');
+    if (existingConfirm) {
+        document.body.removeChild(existingConfirm);
+    }
+    
     // Sjekk om det er helg (fredag = 5, lørdag = 6)
     const isWeekend = moment(currentEditDate).isoWeekday() === 5 || moment(currentEditDate).isoWeekday() === 6;
     
@@ -150,17 +156,105 @@ async function resetNightData() {
         return;
     }
     
-    // Bekreftelse fra bruker
-    if (confirm("Er du sikker på at du vil nullstille denne datoen? Dette vil fjerne all registrert data.")) {
+    // Deaktiver nullstill-knappen for å hindre dobbeltklikk
+    const resetBtn = editOverlay.querySelector('.reset-btn');
+    if (resetBtn) {
+        resetBtn.disabled = true;
+        resetBtn.style.opacity = '0.6';
+        resetBtn.style.cursor = 'default';
+    }
+    
+    // Opprett nytt overlay for bekreftelsesdialogen
+    const confirmOverlay = document.createElement('div');
+    confirmOverlay.className = 'confirm-overlay';
+    
+    // Vis bekreftelsesmelding
+    const confirmUI = document.createElement('div');
+    confirmUI.className = 'confirm-deletion';
+    confirmUI.innerHTML = `
+        <div class="confirm-message">
+            <p>Er du sikker på at du vil nullstille denne datoen?</p>
+            <p>All registrert data vil bli fjernet.</p>
+        </div>
+        <div class="confirm-buttons">
+            <button type="button" class="cancel-confirm">Avbryt</button>
+            <button type="button" class="confirm-delete">Bekreft</button>
+        </div>
+    `;
+    
+    // Legg til bekreftelsesmeldingen i overlay
+    confirmOverlay.appendChild(confirmUI);
+    
+    // Legg til overlay på body
+    document.body.appendChild(confirmOverlay);
+    
+    // Legg til event listeners
+    confirmUI.querySelector('.cancel-confirm').addEventListener('click', () => {
+        // Fjern bekreftelsesmelding
+        try {
+            document.body.removeChild(confirmOverlay);
+        } catch (error) {
+            console.error("Feil ved fjerning av bekreftelsesmelding:", error);
+        }
+        
+        // Reaktiver nullstill-knappen
+        if (resetBtn) {
+            resetBtn.disabled = false;
+            resetBtn.style.opacity = '1';
+            resetBtn.style.cursor = 'pointer';
+        }
+    });
+    
+    confirmUI.querySelector('.confirm-delete').addEventListener('click', async () => {
         const result = await deleteNight(currentEditDate);
         
         if (result) {
+            // Fjern bekreftelsesmelding og lukk redigeringspanelet
+            try {
+                document.body.removeChild(confirmOverlay);
+            } catch (error) {
+                console.error("Feil ved fjerning av bekreftelsesmelding:", error);
+            }
             closeEditPanel();
             await updatePage(); // Oppdater siden med ny data
         } else {
-            alert("Det oppstod et problem ved nullstilling. Vennligst prøv igjen.");
+            // Vis feilmelding i bekreftelsen
+            try {
+                confirmUI.querySelector('.confirm-message').innerHTML = `
+                    <p style="color: #f44336;">Det oppstod et problem ved nullstilling.</p>
+                    <p>Vennligst prøv igjen senere.</p>
+                `;
+                
+                // Endre knappen til "OK"
+                confirmUI.querySelector('.confirm-buttons').innerHTML = `
+                    <button type="button" class="cancel-confirm">OK</button>
+                `;
+                
+                // Legger til listener for OK-knapp
+                setTimeout(() => {
+                    const okButton = confirmUI.querySelector('.cancel-confirm');
+                    if (okButton) {
+                        okButton.addEventListener('click', () => {
+                            try {
+                                document.body.removeChild(confirmOverlay);
+                            } catch (error) {
+                                console.error("Feil ved fjerning av bekreftelsesmelding:", error);
+                            }
+                            
+                            // Reaktiver nullstill-knappen
+                            if (resetBtn) {
+                                resetBtn.disabled = false;
+                                resetBtn.style.opacity = '1';
+                                resetBtn.style.cursor = 'pointer';
+                            }
+                        });
+                    }
+                }, 0);
+            } catch (error) {
+                console.error("Feil ved visning av feilmelding:", error);
+            }
         }
-    }
+    });
 }
 
 // Legg til funksjon for å legge til klikk-lyttere på dager
